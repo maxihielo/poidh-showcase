@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { fetchBounties, bountyPath, chainOf, usd, type Bounty } from '@/lib/poidh';
+import { fetchBounties, usd, type Bounty } from '@/lib/poidh';
 import Explorer from '@/components/Explorer';
+import Rail from '@/components/Rail';
 
 // Revalidate the whole page every 60s; the client can also refresh on demand.
 export const revalidate = 60;
@@ -48,24 +48,7 @@ export default async function Home() {
           <p className="empty">Couldn’t reach the poidh feed right now. Try the refresh button in a moment.</p>
         ) : (
           <>
-            {top.length > 0 && (
-              <section className="rail-wrap">
-                <h2 className="section-h">🏆 Biggest open bounties</h2>
-                <div className="rail">
-                  {top.map((b, i) => {
-                    const c = chainOf(b.chainId);
-                    return (
-                      <Link key={`${b.chainId}-${b.id}`} href={bountyPath(b)} className="rail-card">
-                        <span className="rank">#{i + 1}</span>
-                        <span className="rail-usd">{usd(b.priceUsd)}</span>
-                        <span className="rail-title">{b.title || 'Untitled bounty'}</span>
-                        <span className="rail-chain" style={{ color: c.color }}>{c.name}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
+            {top.length > 0 && <Rail items={top} />}
             <Explorer initial={bounties} />
           </>
         )}
