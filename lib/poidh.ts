@@ -122,11 +122,20 @@ export function usd(n: number): string {
   return `$${n.toFixed(2)}`;
 }
 
+// poidh's feed reports `amount` in the token's base units (wei). Every chain we
+// support (Base/Arbitrum/Ethereum ETH, Degen DEGEN) uses 18 decimals.
+const NATIVE_DECIMALS = 18;
+
 export function nativeAmount(b: Bounty): string {
-  const n = Number(b.amount);
   const sym = b.currency || chainOf(b.chainId).native;
-  if (!Number.isFinite(n)) return `${b.amount} ${sym}`;
-  const s = n < 1 ? n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '') : n.toLocaleString('en-US', { maximumFractionDigits: 3 });
+  const raw = Number(b.amount);
+  if (!Number.isFinite(raw)) return `${b.amount} ${sym}`;
+  const n = raw / 10 ** NATIVE_DECIMALS;
+  if (n === 0) return `0 ${sym}`;
+  if (n > 0 && n < 0.0001) return `<0.0001 ${sym}`;
+  const s = n < 1
+    ? n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')
+    : n.toLocaleString('en-US', { maximumFractionDigits: 3 });
   return `${s} ${sym}`;
 }
 
